@@ -26,6 +26,9 @@ start(Host) ->
 start() ->
 	start(?STATSD_DEFAULT_HOST).
 
+%% Public: closes the socket connection
+%%
+%% returns ok (hopefully)
 stop(State) ->
 	gen_udp:close(State#state.socket).
 
@@ -78,7 +81,7 @@ build_message({message, Key, Value, Type, Samplerate}) ->
 	
 %% Internal: sends the message over a UDP socket
 %% 
-%% returns: 	
-send_message(State, Message) ->
+%% returns: 
+send_message(State, Message) when is_record(State, state) ->
 	io:format("sending message ~p~n", [Message]),
-	ok = gen_udp:send(State#state.socket, State#state.host, State#state.port, Message).
+	gen_udp:send(State#state.socket, State#state.host, State#state.port, Message).
