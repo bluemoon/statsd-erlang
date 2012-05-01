@@ -29,56 +29,55 @@ start() ->
 %% Public: closes the socket connection
 %%
 %% returns ok (hopefully)
-stop(State) ->
-	gen_udp:close(State#state.socket).
+stop(#state{socket=Socket}) ->
+	gen_udp:close(Socket).
 
 %% Public: increments a counter by 1
 %% 
 %% returns ok or {error, Reason}
-increment(State, Key, Samplerate) ->
+increment(State, Key, Samplerate) when is_record(State, state) ->
 	count(State, Key, 1, Samplerate).
-increment(State, Key) ->
+increment(State, Key) when is_record(State, state) ->
 	count(State, Key, 1).
 	
 %% Public: decrements a counter by 1
 %% 
 %% returns ok or {error, Reason}
-decrement(State, Key, Samplerate) ->
+decrement(State, Key, Samplerate) when is_record(State, state) ->
 	count(State, Key, -1, Samplerate).
-decrement(State, Key) ->
+decrement(State, Key) when is_record(State, state) ->
 	count(State, Key, -1).
 
 %% Public: increments a counter by an arbitrary integer value
 %%
 %% returns: ok or {error, Reason}
-count(State, Key, Value) ->
+count(State, Key, Value) when is_record(State, state) ->
 	send(State, {message, Key, Value, c}).
-count(State, Key, Value, Samplerate) ->
+count(State, Key, Value, Samplerate) when is_record(State, state) ->
 	send(State, {message, Key, Value, c, Samplerate}).
 
 %% Public: sends a timing in ms
 %%
 %% returns: ok or {error, Reason}
-timing(State, Key, Value) ->
+timing(State, Key, Value) when is_record(State, state) ->
 	send(State, {message, Key, Value, ms}).
-timing(State, Key, Value, Samplerate) ->
+timing(State, Key, Value, Samplerate) when is_record(State, state) ->
 	send(State, {message, Key, Value, ms, Samplerate}).
 	
 %% Internal: prepares and sends the messages
 %%
 %% returns: ok or {error, Reason}
-send(State, MT) ->
-	Message = build_message(MT),
-	send_message(State, Message).
+send(State, Message) when is_record(State, state) ->
+	send_message(State, build_message(Message)).
 
 %% Internal: builds the message string to be sent
 %% 
 %% returns: a String	
 build_message({message, Key, Value, Type}) ->
-	Key ++ ":" ++ integer_to_list(Value) ++ "|" ++ atom_to_list(Type);
+	[Key, ":", Value, "|", Type];
 build_message({message, Key, Value, Type, Samplerate}) ->
-	build_message({message, Key, Value, Type}) ++ "@" ++ float_to_list(1 / Samplerate).
-	
+	[build_message({message, Key, Value, Type}), "@", io:format("~.2f", 1.0 / Samplerate)].
+		
 %% Internal: sends the message over a UDP socket
 %% 
 %% returns: 
