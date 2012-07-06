@@ -82,5 +82,4 @@ build_message({message, Key, Value, Type, Samplerate}) ->
 %% 
 %% returns: 
 send_message(State, Message) when is_record(State, state) ->
-	io:format("sending message ~p~n", [Message]),
-	gen_udp:send(State#state.socket, State#state.host, State#state.port, Message).
+	gen_udp:send(State#state.socket, State#state.host, State#state.port, lists:flatten(Message)).
