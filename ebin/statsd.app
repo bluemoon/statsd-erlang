@@ -7,6 +7,5 @@
 	},
   {registered, []},
   {applications, [kernel, stdlib]},
-  {mod, {statsd, ["localhost", 8125]}},
   {env, []}
 ]}.
