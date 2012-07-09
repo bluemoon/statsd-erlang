@@ -74,13 +74,12 @@ send(State, Message) when is_record(State, state) ->
 %% 
 %% returns: a String	
 build_message({message, Key, Value, Type}) ->
-	[Key, ":", Value, "|", Type];
+	lists:concat([Key, ":", Value, "|", Type]);
 build_message({message, Key, Value, Type, Samplerate}) ->
-	[build_message({message, Key, Value, Type}), "@", io:format("~.2f", 1.0 / Samplerate)].
+	lists:concat([build_message({message, Key, Value, Type}) | ["@", io_lib:format("~.2f", [1.0 / Samplerate])]]).
 		
 %% Internal: sends the message over a UDP socket
 %% 
 %% returns: 
 send_message(State, Message) when is_record(State, state) ->
-	io:format("sending message ~p~n", [Message]),
 	gen_udp:send(State#state.socket, State#state.host, State#state.port, Message).
